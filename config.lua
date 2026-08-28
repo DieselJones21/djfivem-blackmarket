@@ -3,6 +3,13 @@ Config = {}
 -- auto | esx | qb | qbx
 Config.Framework = 'auto'
 
+Config.Shop = {
+    name = 'Black Market',
+    location = 'Mount Chiliad',
+    initials = 'BM',
+    customerRole = 'Customer',
+}
+
 -- Mount Chiliad summit
 Config.Dealer = {
     model = `g_m_m_chigoon_02`,

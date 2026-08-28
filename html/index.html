@@ -8,38 +8,96 @@
 </head>
 <body>
     <div id="app" class="hidden">
-        <div class="backdrop"></div>
-        <section class="panel">
-            <header class="header">
-                <div class="brand">
-                    <span class="eyebrow">off-grid · no returns</span>
-                    <h1 id="shop-title">Black Market</h1>
-                    <p id="shop-subtitle">Cash always costs more than dirty money.</p>
-                </div>
-                <button id="btn-close" class="icon-btn" type="button" aria-label="Close">ESC</button>
-            </header>
+        <div class="stage">
+            <div class="tablet-wrap">
+            <div class="tablet">
+                <span class="camera"></span>
+                <section class="screen">
+                    <header class="topbar">
+                        <div class="brand">
+                            <div id="shop-initials" class="logo">BM</div>
+                            <div>
+                                <h1 id="shop-title">Black Market</h1>
+                                <p id="shop-location">Mount Chiliad</p>
+                            </div>
+                        </div>
+                        <nav id="categories" class="tabs"></nav>
+                        <div class="profile">
+                            <div class="profile-text">
+                                <strong id="player-name">Customer</strong>
+                                <span id="player-role">Customer</span>
+                            </div>
+                            <div id="player-avatar" class="avatar">C</div>
+                        </div>
+                    </header>
 
-            <nav id="categories" class="categories"></nav>
+                    <div class="stats">
+                        <article class="stat">
+                            <strong id="money-cash">$0</strong>
+                            <span>Wallet</span>
+                        </article>
+                        <article class="stat">
+                            <strong id="money-black">$0</strong>
+                            <span>Black Money</span>
+                        </article>
+                        <article class="stat">
+                            <strong id="cart-total">$0</strong>
+                            <span id="cart-count">0 items</span>
+                        </article>
+                    </div>
 
-            <div class="body">
-                <div id="grid" class="grid"></div>
-                <aside id="detail" class="detail empty">
-                    <p class="detail-placeholder">Pick something. Don't linger.</p>
-                </aside>
+                    <div class="workspace">
+                        <section class="catalog">
+                            <div class="catalog-head">
+                                <div>
+                                    <h2>Catalog</h2>
+                                    <p id="catalog-count">0 items available</p>
+                                </div>
+                                <div class="catalog-tools">
+                                    <label class="search">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <circle cx="11" cy="11" r="7" />
+                                            <path d="M20 20l-3.2-3.2" />
+                                        </svg>
+                                        <input id="search" type="text" placeholder="Search items" autocomplete="off" spellcheck="false" />
+                                    </label>
+                                    <div class="pay-toggle" role="tablist">
+                                        <button type="button" id="pay-black" class="active" data-method="black_money">Black Money</button>
+                                        <button type="button" id="pay-cash" data-method="cash">Cash</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="grid" class="grid"></div>
+                        </section>
+
+                        <aside class="cart">
+                            <div class="cart-head">
+                                <h2>Cart</h2>
+                                <p>Review and checkout</p>
+                            </div>
+                            <div id="cart-list" class="cart-list">
+                                <p class="empty">Your cart is empty.</p>
+                            </div>
+                            <div class="cart-foot">
+                                <div class="row">
+                                    <span>Method</span>
+                                    <strong id="method-label">Black Money</strong>
+                                </div>
+                                <div class="row">
+                                    <span>Total</span>
+                                    <strong id="method-total">$0</strong>
+                                </div>
+                                <button type="button" id="btn-checkout" class="checkout" disabled>Checkout</button>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+                <span class="home-bar"></span>
             </div>
-
-            <footer class="wallet">
-                <div class="wallet-card dirty">
-                    <span>Black Money</span>
-                    <strong id="money-black">$0</strong>
-                </div>
-                <div class="wallet-card cash">
-                    <span>Cash</span>
-                    <strong id="money-cash">$0</strong>
-                </div>
-                <p class="wallet-note">Dirty money is cheaper. Clean cash is taxed.</p>
-            </footer>
-        </section>
+            <button type="button" id="btn-close" class="esc">ESC (Close Shop)</button>
+            </div>
+        </div>
+        <div id="toast" class="toast hidden"></div>
     </div>
     <script src="app.js"></script>
 </body>

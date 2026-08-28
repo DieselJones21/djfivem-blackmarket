@@ -103,10 +103,13 @@ local function spawnPed(id, def)
     SetPedCombatAttributes(ped, 46, true)
     SetBlockingOfNonTemporaryEvents(ped, true)
     SetEntityInvincible(ped, true)
-    FreezeEntityPosition(ped, true)
     SetPedCanRagdoll(ped, false)
     SetPedDiesWhenInjured(ped, false)
+    SetPedCanBeTargetted(ped, false)
     SetPedDefaultComponentVariation(ped)
+    PlacePedOnGroundProperly(ped)
+    SetEntityHeading(ped, def.coords.w)
+    FreezeEntityPosition(ped, true)
 
     if def.scenario then
         TaskStartScenarioInPlace(ped, def.scenario, 0, true)
@@ -132,7 +135,9 @@ local function shopPayload(shop)
         return {
             shop = 'gps',
             title = 'Street Contact',
-            subtitle = 'He only sells the locator. Cash costs extra.',
+            subtitle = 'Los Santos',
+            initials = 'BM',
+            location = 'Los Santos',
             categories = {
                 { id = 'gps', label = 'Locator' },
             },
@@ -170,8 +175,10 @@ local function shopPayload(shop)
 
     return {
         shop = 'dealer',
-        title = 'Black Market',
-        subtitle = 'Top of the world. Cash is always more expensive than dirty money.',
+        title = Config.Shop.name or 'Black Market',
+        subtitle = Config.Shop.location or 'Mount Chiliad',
+        initials = Config.Shop.initials or 'BM',
+        location = Config.Shop.location or 'Mount Chiliad',
         categories = Config.Categories,
         items = items,
     }
@@ -193,9 +200,14 @@ function OpenBlackMarket(shop)
 
     local payload = shopPayload(shop)
     payload.money = result.money or { cash = 0, black_money = 0 }
+    payload.player = result.player or {
+        name = GetPlayerName(PlayerId()),
+        role = Config.Shop.customerRole or 'Customer',
+    }
 
     nuiOpen = true
     SetNuiFocus(true, true)
+    SetCursorLocation(0.5, 0.5)
     SendNUIMessage({
         action = 'open',
         data = payload,
@@ -212,6 +224,16 @@ end
 RegisterNUICallback('close', function(_, cb)
     closeUi()
     cb({ ok = true })
+end)
+
+RegisterNUICallback('checkout', function(data, cb)
+    local result = lib.callback.await('dj_blackmarket:checkout', false, data)
+    if result and result.ok then
+        lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
+    elseif result and result.error then
+        lib.notify({ title = 'Black Market', description = result.error, type = 'error' })
+    end
+    cb(result or { ok = false })
 end)
 
 RegisterNUICallback('purchase', function(data, cb)

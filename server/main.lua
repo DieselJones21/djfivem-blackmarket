@@ -51,7 +51,139 @@ lib.callback.register('dj_blackmarket:canOpen', function(source, shop)
         return { ok = false, reason = 'too_far' }
     end
 
-    return { ok = true, money = Bridge.GetMoney(source) }
+    return {
+        ok = true,
+        money = Bridge.GetMoney(source),
+        player = {
+            name = Bridge.GetName(source),
+            role = Config.Shop.customerRole or 'Customer',
+        },
+    }
+end)
+
+local function resolveEntry(shop, itemName)
+    if shop == 'gps' then
+        if itemName ~= Config.GpsVendor.item then
+            return nil
+        end
+
+        return {
+            item = Config.GpsVendor.item,
+            priceBlack = Config.GpsVendor.priceBlack,
+            priceCash = Config.GpsVendor.priceCash,
+            max = 5,
+        }
+    end
+
+    return itemsByName[itemName]
+end
+
+local function normalizeCart(shop, cart)
+    if type(cart) ~= 'table' then return nil end
+
+    local merged = {}
+    local order = {}
+
+    for i = 1, #cart do
+        local line = cart[i]
+        if type(line) == 'table' then
+            local itemName = tostring(line.item or '')
+            local amount = math.floor(tonumber(line.amount) or 0)
+            local entry = resolveEntry(shop, itemName)
+            if not entry or amount < 1 then
+                return nil
+            end
+            if amount > (entry.max or 1) then
+                amount = entry.max or 1
+            end
+            if not merged[itemName] then
+                merged[itemName] = { entry = entry, amount = 0 }
+                order[#order + 1] = itemName
+            end
+            merged[itemName].amount = math.min((entry.max or 1), merged[itemName].amount + amount)
+        end
+    end
+
+    if #order == 0 then return nil end
+
+    local lines = {}
+    for i = 1, #order do
+        local packed = merged[order[i]]
+        lines[#lines + 1] = packed
+    end
+
+    return lines
+end
+
+lib.callback.register('dj_blackmarket:checkout', function(source, data)
+    if type(data) ~= 'table' then
+        return { ok = false, error = Config.Notify.invalid }
+    end
+
+    local shop = data.shop == 'gps' and 'gps' or 'dealer'
+    local method = data.method == 'cash' and 'cash' or 'black_money'
+
+    if isBlocked(source) then
+        return { ok = false, error = Config.Notify.blocked }
+    end
+
+    if not isNearShop(source, shop) then
+        return { ok = false, error = Config.Notify.tooFar }
+    end
+
+    local now = GetGameTimer()
+    if lastPurchase[source] and (now - lastPurchase[source]) < Config.PurchaseCooldown then
+        return { ok = false, error = Config.Notify.cooldown }
+    end
+
+    local lines = normalizeCart(shop, data.cart)
+    if not lines then
+        return { ok = false, error = Config.Notify.invalid }
+    end
+
+    local total = 0
+    for i = 1, #lines do
+        local unit = method == 'cash' and lines[i].entry.priceCash or lines[i].entry.priceBlack
+        total = total + (unit * lines[i].amount)
+        if not Bridge.CanCarry(source, lines[i].entry.item, lines[i].amount) then
+            return { ok = false, error = Config.Notify.noItem }
+        end
+    end
+
+    if not Bridge.RemoveMoney(source, method, total) then
+        return { ok = false, error = Config.Notify.noMoney, money = Bridge.GetMoney(source) }
+    end
+
+    local addedCost = 0
+    for i = 1, #lines do
+        local entry = lines[i].entry
+        local metadata
+        if entry.item:find('WEAPON_', 1, true) == 1 then
+            metadata = { registered = false }
+        end
+
+        local unit = method == 'cash' and entry.priceCash or entry.priceBlack
+        local lineCost = unit * lines[i].amount
+        local added = Bridge.AddItem(source, entry.item, lines[i].amount, metadata)
+        if added then
+            addedCost = addedCost + lineCost
+        end
+    end
+
+    if addedCost < total then
+        Bridge.AddMoney(source, method, total - addedCost)
+        if addedCost == 0 then
+            return { ok = false, error = Config.Notify.noItem, money = Bridge.GetMoney(source) }
+        end
+    end
+
+    lastPurchase[source] = now
+
+    return {
+        ok = true,
+        message = shop == 'gps' and Config.Notify.gpsBought or Config.Notify.purchased,
+        money = Bridge.GetMoney(source),
+    }
 end)
 
 lib.callback.register('dj_blackmarket:purchase', function(source, data)

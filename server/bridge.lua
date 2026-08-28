@@ -52,6 +52,30 @@ local function getQBPlayer(src)
     return QBCore.Functions.GetPlayer(src)
 end
 
+function Bridge.GetName(src)
+    if framework == 'esx' then
+        local player = getESXPlayer(src)
+        if player then
+            if player.getName then
+                return player.getName()
+            end
+            if player.get and player.get('firstName') then
+                return ('%s %s'):format(player.get('firstName') or '', player.get('lastName') or '')
+            end
+        end
+    end
+
+    if framework == 'qb' or framework == 'qbx' then
+        local player = getQBPlayer(src)
+        local info = player and player.PlayerData and player.PlayerData.charinfo
+        if info then
+            return (('%s %s'):format(info.firstname or '', info.lastname or '')):gsub('%s+$', '')
+        end
+    end
+
+    return GetPlayerName(src) or 'Customer'
+end
+
 function Bridge.GetJobName(src)
     if framework == 'esx' then
         local player = getESXPlayer(src)

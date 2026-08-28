@@ -3,7 +3,9 @@ const inGame = Boolean(window.invokeNative);
 const demoCatalog = {
     shop: 'dealer',
     title: 'Black Market',
-    subtitle: 'Top of the world. Cash is always more expensive than dirty money.',
+    location: 'Mount Chiliad',
+    initials: 'BM',
+    player: { name: 'Test Test', role: 'Customer' },
     money: { cash: 250000, black_money: 180000 },
     categories: [
         { id: 'pistols', label: 'Pistols' },
@@ -34,208 +36,304 @@ const demoCatalog = {
 
 const state = {
     shop: 'dealer',
-    category: null,
+    category: 'all',
+    search: '',
+    method: 'black_money',
     items: [],
-    selected: null,
-    amount: 1,
+    categories: [],
+    qty: {},
+    cart: [],
     money: { cash: 0, black_money: 0 },
     buying: false,
 };
 
-const els = {
-    app: document.getElementById('app'),
-    title: document.getElementById('shop-title'),
-    subtitle: document.getElementById('shop-subtitle'),
-    categories: document.getElementById('categories'),
-    grid: document.getElementById('grid'),
-    detail: document.getElementById('detail'),
-    cash: document.getElementById('money-cash'),
-    black: document.getElementById('money-black'),
-    close: document.getElementById('btn-close'),
-};
+let toastTimer;
+
+function $(id) {
+    return document.getElementById(id);
+}
 
 function money(n) {
     return '$' + Math.floor(Number(n) || 0).toLocaleString('en-US');
+}
+
+function initials(name) {
+    const parts = String(name || 'C').trim().split(/\s+/);
+    const letters = (parts[0][0] || 'C') + (parts[1] ? parts[1][0] : '');
+    return letters.toUpperCase();
+}
+
+function unitPrice(item) {
+    return state.method === 'cash' ? item.priceCash : item.priceBlack;
+}
+
+function cartTotal() {
+    return state.cart.reduce((sum, line) => sum + unitPrice(line.item) * line.amount, 0);
+}
+
+function cartCount() {
+    return state.cart.reduce((sum, line) => sum + line.amount, 0);
 }
 
 function nui(name, data) {
     if (!inGame) {
         return Promise.resolve({ ok: true, demo: true });
     }
-    return fetch(`https://${GetParentResourceName()}/${name}`, {
+    const resource = (typeof GetParentResourceName === 'function' && GetParentResourceName()) || 'djfivem-blackmarket';
+    return fetch(`https://${resource}/${name}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
         body: JSON.stringify(data || {}),
     }).then((res) => res.json()).catch(() => ({ ok: false }));
 }
 
+function toast(message) {
+    const el = $('toast');
+    el.textContent = message;
+    el.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.add('hidden'), 1800);
+}
+
 function closeUi() {
-    els.app.classList.add('hidden');
+    $('app').classList.add('hidden');
     nui('close');
 }
 
 function setMoney(wallet) {
     state.money = wallet || state.money;
-    els.cash.textContent = money(state.money.cash);
-    els.black.textContent = money(state.money.black_money);
+    $('money-cash').textContent = money(state.money.cash);
+    $('money-black').textContent = money(state.money.black_money);
+    renderTotals();
 }
 
-function itemsInCategory() {
-    return state.items.filter((item) => item.category === state.category);
+function visibleItems() {
+    const query = state.search.trim().toLowerCase();
+    return state.items.filter((item) => {
+        if (state.category !== 'all' && item.category !== state.category) return false;
+        if (!query) return true;
+        return item.label.toLowerCase().includes(query) || item.item.toLowerCase().includes(query);
+    });
 }
 
-function renderCategories(categories) {
-    els.categories.innerHTML = '';
-    categories.forEach((cat) => {
+function renderCategories() {
+    const tabs = [{ id: 'all', label: 'All' }].concat(state.categories);
+    $('categories').innerHTML = '';
+    tabs.forEach((cat) => {
         const btn = document.createElement('button');
-        btn.className = 'cat' + (cat.id === state.category ? ' active' : '');
+        btn.type = 'button';
+        btn.className = 'tab' + (cat.id === state.category ? ' active' : '');
         btn.textContent = cat.label;
         btn.addEventListener('click', () => {
             state.category = cat.id;
-            state.selected = null;
-            renderCategories(categories);
+            renderCategories();
             renderGrid();
-            renderDetail();
         });
-        els.categories.appendChild(btn);
+        $('categories').appendChild(btn);
     });
 }
 
 function renderGrid() {
-    els.grid.innerHTML = '';
-    itemsInCategory().forEach((item) => {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'card' + (state.selected && state.selected.item === item.item ? ' selected' : '');
-        card.innerHTML = `
-            <img src="${item.image}" alt="${item.label}" />
-            <h3>${item.label}</h3>
-            <div class="prices">
-                <span class="dirty">${money(item.priceBlack)}</span>
-                <span class="cash">${money(item.priceCash)}</span>
-            </div>
-        `;
-        card.addEventListener('click', () => {
-            state.selected = item;
-            state.amount = item.defaultAmount || 1;
-            renderGrid();
-            renderDetail();
-        });
-        els.grid.appendChild(card);
-    });
-}
+    const items = visibleItems();
+    $('catalog-count').textContent = items.length + (items.length === 1 ? ' item available' : ' items available');
+    const grid = $('grid');
+    grid.innerHTML = '';
 
-function renderDetail() {
-    const item = state.selected;
-    if (!item) {
-        els.detail.classList.add('empty');
-        els.detail.innerHTML = '<p class="detail-placeholder">Pick something. Don\'t linger.</p>';
+    if (!items.length) {
+        grid.innerHTML = '<p class="empty">No items found.</p>';
         return;
     }
 
-    els.detail.classList.remove('empty');
-    const blackTotal = item.priceBlack * state.amount;
-    const cashTotal = item.priceCash * state.amount;
-    const canBlack = state.money.black_money >= blackTotal;
-    const canCash = state.money.cash >= cashTotal;
-
-    els.detail.innerHTML = `
-        <img src="${item.image}" alt="${item.label}" />
-        <h2>${item.label}</h2>
-        <p class="desc">${item.description || ''}</p>
-        <div class="qty">
-            <span>Amount</span>
+    items.forEach((item) => {
+        if (!state.qty[item.item]) {
+            state.qty[item.item] = item.defaultAmount || 1;
+        }
+        const qty = state.qty[item.item];
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+            <div class="thumb"><img src="${item.image}" alt="${item.label}" /></div>
+            <h3>${item.label}</h3>
+            <div class="price">${money(unitPrice(item))}</div>
             <div class="stepper">
-                <button type="button" id="qty-minus">-</button>
-                <input id="qty-input" type="number" min="1" max="${item.max}" value="${state.amount}" />
-                <button type="button" id="qty-plus">+</button>
+                <button type="button" data-act="minus" ${qty <= 1 ? 'disabled' : ''}>−</button>
+                <span>${qty}</span>
+                <button type="button" data-act="plus" ${qty >= item.max ? 'disabled' : ''}>+</button>
             </div>
-        </div>
-        <div class="pay">
-            <button class="black" ${canBlack ? '' : 'disabled'} data-method="black_money">
-                Black Money · ${money(blackTotal)}
-            </button>
-            <button class="clean" ${canCash ? '' : 'disabled'} data-method="cash">
-                Cash · ${money(cashTotal)}
-            </button>
-        </div>
-    `;
-
-    const input = document.getElementById('qty-input');
-    const clamp = (value) => {
-        let next = Math.floor(Number(value) || 1);
-        if (next < 1) next = 1;
-        if (next > item.max) next = item.max;
-        state.amount = next;
-        renderDetail();
-    };
-
-    document.getElementById('qty-minus').addEventListener('click', () => clamp(state.amount - 1));
-    document.getElementById('qty-plus').addEventListener('click', () => clamp(state.amount + 1));
-    input.addEventListener('change', () => clamp(input.value));
-
-    els.detail.querySelectorAll('.pay button').forEach((btn) => {
-        btn.addEventListener('click', () => buy(btn.dataset.method));
+            <button type="button" class="add" data-act="add">Add to cart</button>
+        `;
+        card.addEventListener('click', (event) => {
+            const act = event.target.dataset && event.target.dataset.act;
+            if (act === 'minus') changeQty(item, -1);
+            if (act === 'plus') changeQty(item, 1);
+            if (act === 'add') addToCart(item, card.querySelector('.add'));
+        });
+        grid.appendChild(card);
     });
 }
 
-async function buy(method) {
-    if (!state.selected || state.buying) return;
+function changeQty(item, delta) {
+    const next = (state.qty[item.item] || 1) + delta;
+    state.qty[item.item] = Math.min(item.max, Math.max(1, next));
+    renderGrid();
+}
+
+function addToCart(item, button) {
+    const amount = state.qty[item.item] || 1;
+    const existing = state.cart.find((line) => line.item.item === item.item);
+    if (existing) {
+        existing.amount = Math.min(item.max, existing.amount + amount);
+    } else {
+        state.cart.push({ item, amount });
+    }
+    if (button) {
+        button.classList.add('added');
+        button.textContent = 'Added';
+        setTimeout(() => {
+            button.classList.remove('added');
+            button.textContent = 'Add to cart';
+        }, 700);
+    }
+    toast('Added ' + item.label + ' to cart');
+    renderCart();
+}
+
+function removeFromCart(itemName) {
+    state.cart = state.cart.filter((line) => line.item.item !== itemName);
+    renderCart();
+}
+
+function renderCart() {
+    const list = $('cart-list');
+    if (!state.cart.length) {
+        list.innerHTML = '<p class="empty">Your cart is empty.</p>';
+        renderTotals();
+        return;
+    }
+
+    list.innerHTML = '';
+    state.cart.forEach((line) => {
+        const row = document.createElement('div');
+        row.className = 'line';
+        row.innerHTML = `
+            <img src="${line.item.image}" alt="${line.item.label}" />
+            <div>
+                <h4>${line.item.label}</h4>
+                <p>${line.amount} × ${money(unitPrice(line.item))}</p>
+                <button type="button">Remove</button>
+            </div>
+            <strong>${money(unitPrice(line.item) * line.amount)}</strong>
+        `;
+        row.querySelector('button').addEventListener('click', () => removeFromCart(line.item.item));
+        list.appendChild(row);
+    });
+    renderTotals();
+}
+
+function renderTotals() {
+    const total = cartTotal();
+    const count = cartCount();
+    const label = state.method === 'cash' ? 'Cash' : 'Black Money';
+    const wallet = state.method === 'cash' ? state.money.cash : state.money.black_money;
+    $('cart-total').textContent = money(total);
+    $('cart-count').textContent = count + (count === 1 ? ' item' : ' items');
+    $('method-label').textContent = label;
+    $('method-total').textContent = money(total);
+    $('btn-checkout').disabled = count === 0 || wallet < total || state.buying;
+}
+
+function setMethod(method) {
+    state.method = method;
+    $('pay-black').classList.toggle('active', method === 'black_money');
+    $('pay-cash').classList.toggle('active', method === 'cash');
+    renderGrid();
+    renderCart();
+}
+
+async function checkout() {
+    if (state.buying || !state.cart.length) return;
+    const total = cartTotal();
+    const wallet = state.method === 'cash' ? state.money.cash : state.money.black_money;
+    if (wallet < total) {
+        toast('Not enough ' + (state.method === 'cash' ? 'cash' : 'black money'));
+        return;
+    }
+
     state.buying = true;
-    const result = await nui('purchase', {
+    renderTotals();
+    const result = await nui('checkout', {
         shop: state.shop,
-        item: state.selected.item,
-        amount: state.amount,
-        method,
+        method: state.method,
+        cart: state.cart.map((line) => ({ item: line.item.item, amount: line.amount })),
     });
     state.buying = false;
 
     if (result && result.ok) {
-        if (result.money) setMoney(result.money);
-        if (!inGame) {
-            const price = method === 'cash' ? state.selected.priceCash : state.selected.priceBlack;
-            const key = method === 'cash' ? 'cash' : 'black_money';
-            state.money[key] = Math.max(0, state.money[key] - price * state.amount);
+        if (result.money) {
+            setMoney(result.money);
+        } else if (!inGame) {
+            const key = state.method === 'cash' ? 'cash' : 'black_money';
+            state.money[key] = Math.max(0, state.money[key] - total);
             setMoney(state.money);
         }
-        renderDetail();
+        state.cart = [];
+        renderCart();
+        toast('Purchase complete');
         return;
     }
 
-    renderDetail();
+    toast((result && result.error) || 'Checkout failed');
+    renderTotals();
 }
 
 function openShop(data) {
     state.shop = data.shop || 'dealer';
     state.items = data.items || [];
-    state.category = (data.categories && data.categories[0] && data.categories[0].id) || 'pistols';
-    state.selected = null;
-    state.amount = 1;
+    state.categories = data.categories || [];
+    state.category = 'all';
+    state.search = '';
+    state.method = 'black_money';
+    state.cart = [];
+    state.qty = {};
+    state.buying = false;
+
+    $('shop-title').textContent = data.title || 'Black Market';
+    $('shop-location').textContent = data.location || data.subtitle || 'Mount Chiliad';
+    $('shop-initials').textContent = data.initials || 'BM';
+
+    const player = data.player || { name: 'Customer', role: 'Customer' };
+    $('player-name').textContent = player.name || 'Customer';
+    $('player-role').textContent = player.role || 'Customer';
+    $('player-avatar').textContent = initials(player.name);
+
+    $('search').value = '';
     setMoney(data.money || { cash: 0, black_money: 0 });
-    els.title.textContent = data.title || 'Black Market';
-    els.subtitle.textContent = data.subtitle || '';
-    renderCategories(data.categories || []);
+    setMethod('black_money');
+    renderCategories();
     renderGrid();
-    renderDetail();
-    els.app.classList.remove('hidden');
+    renderCart();
+    $('app').classList.remove('hidden');
 }
 
-els.close.addEventListener('click', closeUi);
+$('btn-close').addEventListener('click', closeUi);
+$('btn-checkout').addEventListener('click', checkout);
+$('pay-black').addEventListener('click', () => setMethod('black_money'));
+$('pay-cash').addEventListener('click', () => setMethod('cash'));
+$('search').addEventListener('input', (event) => {
+    state.search = event.target.value;
+    renderGrid();
+});
 
 window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !els.app.classList.contains('hidden')) {
+    if (event.key === 'Escape' && !$('app').classList.contains('hidden')) {
         closeUi();
     }
 });
 
 window.addEventListener('message', (event) => {
     const payload = event.data || {};
-    if (payload.action === 'open') {
-        openShop(payload.data || {});
-    }
-    if (payload.action === 'close') {
-        els.app.classList.add('hidden');
-    }
+    if (payload.action === 'open') openShop(payload.data || {});
+    if (payload.action === 'close') $('app').classList.add('hidden');
 });
 
 if (!inGame) {
