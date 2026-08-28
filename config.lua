@@ -10,6 +10,15 @@ Config.Shop = {
     customerRole = 'Customer',
 }
 
+-- Shop icons are loaded from ox_inventory/web/images/<item>.png
+-- Copy the PNGs from install/inventory_images/ into that folder.
+-- If a file name does not match the item name, set image = 'filename.png' on that item.
+Config.Images = {
+    resource = 'ox_inventory',
+    folder = 'web/images',
+    extension = 'png',
+}
+
 -- Mount Chiliad summit
 Config.Dealer = {
     model = `g_m_m_chigoon_02`,

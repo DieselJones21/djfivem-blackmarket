@@ -67,6 +67,13 @@ function unitPrice(item) {
     return state.method === 'cash' ? item.priceCash : item.priceBlack;
 }
 
+function imgTag(item, extraClass) {
+    const src = item.image || ('images/' + item.item + '.png');
+    const fallback = 'images/' + item.item + '.png';
+    const cls = extraClass ? ' class="' + extraClass + '"' : '';
+    return '<img' + cls + ' src="' + src + '" alt="' + item.label + '" onerror="if(this.dataset.fallback)return;this.dataset.fallback=1;this.src=\'' + fallback + '\'" />';
+}
+
 function cartTotal() {
     return state.cart.reduce((sum, line) => sum + unitPrice(line.item) * line.amount, 0);
 }
@@ -152,7 +159,7 @@ function renderGrid() {
         const card = document.createElement('article');
         card.className = 'card';
         card.innerHTML = `
-            <div class="thumb"><img src="${item.image}" alt="${item.label}" /></div>
+            <div class="thumb">${imgTag(item)}</div>
             <h3>${item.label}</h3>
             <div class="price">${money(unitPrice(item))}</div>
             <div class="stepper">
@@ -216,7 +223,7 @@ function renderCart() {
         const row = document.createElement('div');
         row.className = 'line';
         row.innerHTML = `
-            <img src="${line.item.image}" alt="${line.item.label}" />
+            ${imgTag(line.item)}
             <div>
                 <h4>${line.item.label}</h4>
                 <p>${line.amount} × ${money(unitPrice(line.item))}</p>

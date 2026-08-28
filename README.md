@@ -16,7 +16,7 @@ If `interact` is not started, the script falls back to `ox_target`, then to ox_l
 ## Install
 
 1. Drop this folder into `resources` as `djfivem-blackmarket`.
-2. Copy every PNG from `install/inventory_images/` into `ox_inventory/web/images/`.
+2. Copy every PNG from `install/inventory_images/` into `ox_inventory/web/images/`. The shop loads icons from that folder (`nui://ox_inventory/web/images/<item>.png`), using the same files as inventory.
 3. Paste the weapon and item blocks from `install/ox_inventory_items.lua` into ox_inventory:
    - weapons → `ox_inventory/data/weapons.lua`
    - items → `ox_inventory/data/items.lua`
@@ -60,3 +60,4 @@ Using `blackmarket_gps` sets a waypoint (and optional blip) to the Chiliad deale
 - `Config.Framework = 'auto'` detects ESX / QB / Qbox
 - `Config.BlockedJobs` stops police jobs from opening the shop
 - `Config.Interact.system` can be `interact`, `ox_target`, or `drawtext`
+- `Config.Images` points at `ox_inventory/web/images`. Change `resource` / `folder` if your inventory path is different.

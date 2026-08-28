@@ -130,6 +130,23 @@ local function spawnPed(id, def)
     spawned[id].target = usedTarget
 end
 
+local function itemImage(itemName, custom)
+    local file = custom
+    if not file or file == '' then
+        file = ('%s.%s'):format(itemName, Config.Images.extension or 'png')
+    elseif not file:find('%.') then
+        file = ('%s.%s'):format(file, Config.Images.extension or 'png')
+    end
+
+    if file:find('nui://', 1, true) or file:find('http', 1, true) or file:find('images/', 1, true) then
+        return file
+    end
+
+    local resource = Config.Images.resource or 'ox_inventory'
+    local folder = Config.Images.folder or 'web/images'
+    return ('nui://%s/%s/%s'):format(resource, folder, file)
+end
+
 local function shopPayload(shop)
     if shop == 'gps' then
         return {
@@ -151,7 +168,7 @@ local function shopPayload(shop)
                     priceCash = Config.GpsVendor.priceCash,
                     max = 5,
                     defaultAmount = 1,
-                    image = 'images/blackmarket_gps.png',
+                    image = itemImage(Config.GpsVendor.item),
                 },
             },
         }
@@ -169,7 +186,7 @@ local function shopPayload(shop)
             priceCash = entry.priceCash,
             max = entry.max or 1,
             defaultAmount = entry.defaultAmount or 1,
-            image = ('images/%s.png'):format(entry.item),
+            image = itemImage(entry.item, entry.image),
         }
     end
 

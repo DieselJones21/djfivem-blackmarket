@@ -2,6 +2,7 @@
 -- Weapons: ox_inventory/data/weapons.lua  (inside the returned Weapons table)
 -- Items:   ox_inventory/data/items.lua
 -- Images:  copy install/inventory_images/*.png into ox_inventory/web/images/
+-- The shop UI loads those same files via nui://ox_inventory/web/images/<item>.png
 
 --[[
     WEAPONS — paste into ox_inventory/data/weapons.lua
