@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Black Market</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="app" class="hidden">
+        <div class="backdrop"></div>
+        <section class="panel">
+            <header class="header">
+                <div class="brand">
+                    <span class="eyebrow">off-grid · no returns</span>
+                    <h1 id="shop-title">Black Market</h1>
+                    <p id="shop-subtitle">Cash always costs more than dirty money.</p>
+                </div>
+                <button id="btn-close" class="icon-btn" type="button" aria-label="Close">ESC</button>
+            </header>
+
+            <nav id="categories" class="categories"></nav>
+
+            <div class="body">
+                <div id="grid" class="grid"></div>
+                <aside id="detail" class="detail empty">
+                    <p class="detail-placeholder">Pick something. Don't linger.</p>
+                </aside>
+            </div>
+
+            <footer class="wallet">
+                <div class="wallet-card dirty">
+                    <span>Black Money</span>
+                    <strong id="money-black">$0</strong>
+                </div>
+                <div class="wallet-card cash">
+                    <span>Cash</span>
+                    <strong id="money-cash">$0</strong>
+                </div>
+                <p class="wallet-note">Dirty money is cheaper. Clean cash is taxed.</p>
+            </footer>
+        </section>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
