@@ -7,39 +7,44 @@ local function vec3From(coords)
 end
 
 local function loadModel(model)
-    if not IsModelInCdimage(model) then return false end
+    if type(model) == 'string' then
+        model = joaat(model)
+    end
+    if not IsModelInCdimage(model) or not IsModelValid(model) then return false end
     RequestModel(model)
     local timeout = GetGameTimer() + 5000
     while not HasModelLoaded(model) do
         if GetGameTimer() > timeout then return false end
         Wait(10)
     end
-    return true
+    return model
 end
 
-local function groundZ(coords)
-    local found, z = GetGroundZFor_3dCoord(coords.x, coords.y, coords.z + 2.0, false)
-    if found then
-        return z
+local function waitForInteract()
+    local timeout = GetGameTimer() + 15000
+    while GetResourceState('interact') ~= 'started' do
+        if GetGameTimer() > timeout then
+            return false
+        end
+        Wait(100)
     end
-    return coords.z
+    return true
 end
 
 local function deletePed(id)
     local data = spawned[id]
     if not data then return end
 
-    if data.interactId and GetResourceState('interact') == 'started' then
+    if GetResourceState('interact') == 'started' then
+        local interactId = data.interactId
         pcall(function()
-            exports.interact:RemoveLocalEntityInteraction(data.ped, data.interactId)
+            if data.ped then
+                exports.interact:RemoveLocalEntityInteraction(data.ped, interactId)
+            end
         end)
         pcall(function()
-            exports.interact:RemoveInteraction(data.interactId)
+            exports.interact:RemoveInteraction(interactId)
         end)
-    end
-
-    if data.target and GetResourceState('ox_target') == 'started' then
-        exports.ox_target:removeLocalEntity(data.ped)
     end
 
     if data.ped and DoesEntityExist(data.ped) then
@@ -49,44 +54,43 @@ local function deletePed(id)
     spawned[id] = nil
 end
 
-local function addInteract(id, ped, label, onSelect)
-    local system = Config.Interact.system
-    local interactId = ('dj_blackmarket_%s'):format(id)
+local function addInteract(id, def, ped, onSelect)
+    if not waitForInteract() then
+        return nil
+    end
 
-    if system == 'interact' and GetResourceState('interact') == 'started' then
+    local interactId = def.interactId or ('dj_blackmarket_%s'):format(id)
+
+    pcall(function()
+        exports.interact:RemoveLocalEntityInteraction(ped, interactId)
+        exports.interact:RemoveInteraction(interactId)
+    end)
+
+    local ok = pcall(function()
         exports.interact:AddLocalEntityInteraction({
             entity = ped,
             id = interactId,
             name = interactId,
             distance = Config.Interact.distance,
             interactDst = Config.Interact.interactDst,
-            offset = Config.Interact.offset,
+            ignoreLos = Config.Interact.ignoreLos ~= false,
+            offset = Config.Interact.offset or vec3(0.0, 0.0, 1.0),
             options = {
                 {
-                    label = label,
+                    label = def.interactLabel,
                     action = function()
                         onSelect()
                     end,
                 },
             },
         })
-        return interactId, false
+    end)
+
+    if not ok then
+        return nil
     end
 
-    if GetResourceState('ox_target') == 'started' then
-        exports.ox_target:addLocalEntity(ped, {
-            {
-                name = interactId,
-                icon = 'fa-solid fa-comments',
-                label = label,
-                distance = Config.Interact.interactDst + 0.8,
-                onSelect = onSelect,
-            },
-        })
-        return interactId, true
-    end
-
-    return interactId, false
+    return interactId
 end
 
 local function spawnPed(id, def)
@@ -94,11 +98,25 @@ local function spawnPed(id, def)
         return
     end
 
-    if not loadModel(def.model) then return end
+    if spawned[id] then
+        deletePed(id)
+    end
 
-    local z = groundZ(def.coords)
-    local ped = CreatePed(0, def.model, def.coords.x, def.coords.y, z, def.coords.w, false, true)
+    local model = loadModel(def.model)
+    if not model then return end
+
+    local x, y, z, heading = def.coords.x, def.coords.y, def.coords.z, def.coords.w
+    RequestCollisionAtCoord(x, y, z)
+
+    local ped = CreatePed(0, model, x, y, z, heading, false, true)
+    if not ped or ped == 0 then
+        SetModelAsNoLongerNeeded(model)
+        return
+    end
+
     SetEntityAsMissionEntity(ped, true, true)
+    SetEntityCoordsNoOffset(ped, x, y, z, false, false, false)
+    SetEntityHeading(ped, heading)
     SetPedFleeAttributes(ped, 0, false)
     SetPedCombatAttributes(ped, 46, true)
     SetBlockingOfNonTemporaryEvents(ped, true)
@@ -107,27 +125,25 @@ local function spawnPed(id, def)
     SetPedDiesWhenInjured(ped, false)
     SetPedCanBeTargetted(ped, false)
     SetPedDefaultComponentVariation(ped)
-    PlacePedOnGroundProperly(ped)
-    SetEntityHeading(ped, def.coords.w)
     FreezeEntityPosition(ped, true)
 
     if def.scenario then
         TaskStartScenarioInPlace(ped, def.scenario, 0, true)
+        FreezeEntityPosition(ped, true)
     end
 
-    SetModelAsNoLongerNeeded(def.model)
+    SetModelAsNoLongerNeeded(model)
+    Wait(100)
 
     spawned[id] = {
         ped = ped,
         def = def,
     }
 
-    local interactId, usedTarget = addInteract(id, ped, def.interactLabel, function()
+    local ok, interactId = pcall(addInteract, id, def, ped, function()
         OpenBlackMarket(id)
     end)
-
-    spawned[id].interactId = interactId
-    spawned[id].target = usedTarget
+    spawned[id].interactId = ok and interactId or (def.interactId or ('dj_blackmarket_%s'):format(id))
 end
 
 local function itemImage(itemName, custom)
@@ -318,12 +334,16 @@ RegisterNetEvent('dj_blackmarket:useGps', function()
 end)
 
 CreateThread(function()
+    while GetResourceState('interact') ~= 'started' do
+        Wait(200)
+    end
+
     while true do
         local playerCoords = GetEntityCoords(PlayerPedId())
         local dealerDist = #(playerCoords - vec3From(Config.Dealer.coords))
 
         if dealerDist < Config.Dealer.spawnDistance then
-            spawnPed('dealer', Config.Dealer)
+            pcall(spawnPed, 'dealer', Config.Dealer)
         else
             deletePed('dealer')
         end
@@ -331,34 +351,20 @@ CreateThread(function()
         if Config.GpsVendor.enabled then
             local gpsDist = #(playerCoords - vec3From(Config.GpsVendor.coords))
             if gpsDist < Config.GpsVendor.spawnDistance then
-                spawnPed('gps', Config.GpsVendor)
+                pcall(spawnPed, 'gps', Config.GpsVendor)
             else
                 deletePed('gps')
             end
         end
 
-        if Config.Interact.system == 'drawtext' then
-            local showing = false
-            for id, data in pairs(spawned) do
-                if data.ped and DoesEntityExist(data.ped) then
-                    local dist = #(playerCoords - GetEntityCoords(data.ped))
-                    if dist < Config.Interact.interactDst + 0.4 then
-                        showing = true
-                        lib.showTextUI(('[E] %s'):format(data.def.interactLabel))
-                        if IsControlJustReleased(0, 38) then
-                            OpenBlackMarket(id)
-                        end
-                    end
-                end
-            end
-            if not showing then
-                lib.hideTextUI()
-            end
-            Wait(showing and 0 or 1000)
-        else
-            Wait(1000)
-        end
+        Wait(1000)
     end
+end)
+
+AddEventHandler('onResourceStart', function(resource)
+    if resource ~= 'interact' then return end
+    deletePed('dealer')
+    deletePed('gps')
 end)
 
 AddEventHandler('onResourceStop', function(resource)
@@ -369,5 +375,4 @@ AddEventHandler('onResourceStop', function(resource)
     if gpsBlip and DoesBlipExist(gpsBlip) then
         RemoveBlip(gpsBlip)
     end
-    lib.hideTextUI()
 end)

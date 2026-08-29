@@ -33,4 +33,5 @@ files {
 dependencies {
     'ox_lib',
     'ox_inventory',
+    'interact',
 }
