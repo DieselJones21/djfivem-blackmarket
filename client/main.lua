@@ -93,8 +93,20 @@ local function addInteract(id, def, ped, onSelect)
     return interactId
 end
 
+local function placePed(ped, coords)
+    local x, y, z, heading = coords.x, coords.y, coords.z, coords.w
+    RequestCollisionAtCoord(x, y, z)
+    SetEntityCoordsNoOffset(ped, x, y, z, false, false, false)
+    SetEntityHeading(ped, heading)
+    FreezeEntityPosition(ped, true)
+end
+
 local function spawnPed(id, def)
     if spawned[id] and spawned[id].ped and DoesEntityExist(spawned[id].ped) then
+        local dist = #(GetEntityCoords(spawned[id].ped) - vec3(def.coords.x, def.coords.y, def.coords.z))
+        if dist > 1.5 then
+            placePed(spawned[id].ped, def.coords)
+        end
         return
     end
 
@@ -115,8 +127,7 @@ local function spawnPed(id, def)
     end
 
     SetEntityAsMissionEntity(ped, true, true)
-    SetEntityCoordsNoOffset(ped, x, y, z, false, false, false)
-    SetEntityHeading(ped, heading)
+    placePed(ped, def.coords)
     SetPedFleeAttributes(ped, 0, false)
     SetPedCombatAttributes(ped, 46, true)
     SetBlockingOfNonTemporaryEvents(ped, true)
@@ -125,15 +136,17 @@ local function spawnPed(id, def)
     SetPedDiesWhenInjured(ped, false)
     SetPedCanBeTargetted(ped, false)
     SetPedDefaultComponentVariation(ped)
-    FreezeEntityPosition(ped, true)
 
     if def.scenario then
+        ClearPedTasksImmediately(ped)
+        placePed(ped, def.coords)
         TaskStartScenarioInPlace(ped, def.scenario, 0, true)
-        FreezeEntityPosition(ped, true)
+        placePed(ped, def.coords)
     end
 
     SetModelAsNoLongerNeeded(model)
     Wait(100)
+    placePed(ped, def.coords)
 
     spawned[id] = {
         ped = ped,
