@@ -306,7 +306,6 @@ function openShop(data) {
 
     $('shop-title').textContent = data.title || 'Black Market';
     $('shop-location').textContent = data.location || data.subtitle || 'Mount Chiliad';
-    $('shop-initials').textContent = data.initials || 'BM';
 
     const player = data.player || { name: 'Customer', role: 'Customer' };
     $('player-name').textContent = player.name || 'Customer';

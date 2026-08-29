@@ -108,17 +108,16 @@ button, input { font-family: inherit; }
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
 }
 
-.logo {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: var(--red);
-    display: grid;
-    place-items: center;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+.brand-logo {
+    height: 56px;
+    width: auto;
+    max-width: 150px;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
 }
 
 .brand h1 {
