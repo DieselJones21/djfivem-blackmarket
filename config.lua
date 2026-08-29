@@ -19,10 +19,10 @@ Config.Images = {
     extension = 'png',
 }
 
--- Mount Chiliad summit
+-- Mount Chiliad lookout
 Config.Dealer = {
     model = `g_m_m_chigoon_02`,
-    coords = vec4(450.24, 5566.52, 795.19, 85.0),
+    coords = vec4(501.85, 5604.96, 797.91, 171.09),
     scenario = 'WORLD_HUMAN_SMOKING',
     interactId = 'dj_blackmarket_dealer',
     interactLabel = 'Open Black Market',
@@ -58,16 +58,17 @@ Config.Gps = {
     },
 }
 
--- interact (darktrovx) | ox_target | drawtext
+-- darktrovx interact only
 Config.Interact = {
     system = 'interact',
     distance = 8.0,
-    interactDst = 1.6,
-    offset = vec3(0.0, 0.0, 0.15),
+    interactDst = 2.0,
+    offset = vec3(0.0, 0.0, 1.0),
+    ignoreLos = true,
 }
 
 Config.PurchaseCooldown = 1500
-Config.MaxDealDistance = 6.0
+Config.MaxDealDistance = 10.0
 
 -- Jobs that cannot use the dealer
 Config.BlockedJobs = {

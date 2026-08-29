@@ -9,9 +9,9 @@ Dirty money is the cheap rate. Cash always costs more.
 - [ox_lib](https://github.com/overextended/ox_lib)
 - [ox_inventory](https://github.com/overextended/ox_inventory)
 - ESX, QBCore, or Qbox
-- [interact](https://github.com/darktrovx/interact) (recommended)
+- [interact](https://github.com/darktrovx/interact)
 
-If `interact` is not started, the script falls back to `ox_target`, then to ox_lib text UI + E.
+`interact` is required. Ensure it starts before this resource.
 
 ## Install
 
@@ -35,7 +35,7 @@ Custom weapon names (`WEAPON_SNAKEAP`, `WEAPON_KISSAR`, etc.) also need the matc
 
 ## Locations
 
-- **Dealer:** Mount Chiliad summit (`450.24, 5566.52, 795.19`)
+- **Dealer:** Mount Chiliad lookout (`501.85, 5604.96, 797.91`)
 - **GPS vendor:** Grove Street alley (`127.92, -1929.90, 20.38`) — sells only the GPS so players can find the mountain
 
 Edit both in `config.lua`. Set `Config.GpsVendor.enabled = false` if you do not want the city contact.
@@ -59,5 +59,5 @@ Using `blackmarket_gps` sets a waypoint (and optional blip) to the Chiliad deale
 
 - `Config.Framework = 'auto'` detects ESX / QB / Qbox
 - `Config.BlockedJobs` stops police jobs from opening the shop
-- `Config.Interact.system` can be `interact`, `ox_target`, or `drawtext`
+- `Config.Interact` uses [interact](https://github.com/darktrovx/interact) on the dealer ped
 - `Config.Images` points at `ox_inventory/web/images`. Change `resource` / `folder` if your inventory path is different.
