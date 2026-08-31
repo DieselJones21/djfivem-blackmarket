@@ -213,7 +213,7 @@ function renderGrid() {
 }
 
 function updateCardQty(item) {
-    const card = $('grid').querySelector('[data-item="' + item.item + '"]');
+    const card = $('grid').querySelector('[data-item="' + CSS.escape(item.item) + '"]');
     if (!card) return;
     const qty = qtyFor(item);
     const qtyEl = card.querySelector('[data-qty]');
@@ -343,16 +343,20 @@ async function checkout() {
 }
 
 function sanitizeItems(items) {
-    return (items || []).filter((item) => item && safeId(item.item) && item.label).map((item) => ({
-        category: String(item.category || ''),
-        item: item.item,
-        label: String(item.label),
-        priceBlack: Math.max(0, Math.floor(Number(item.priceBlack) || 0)),
-        priceCash: Math.max(0, Math.floor(Number(item.priceCash) || 0)),
-        max: Math.max(1, Math.floor(Number(item.max) || 1)),
-        defaultAmount: Math.max(1, Math.floor(Number(item.defaultAmount) || 1)),
-        image: item.image,
-    }));
+    return (items || []).filter((item) => item && safeId(item.item) && item.label).map((item) => {
+        const max = Math.max(1, Math.floor(Number(item.max) || 1));
+        const defaultAmount = Math.min(max, Math.max(1, Math.floor(Number(item.defaultAmount) || 1)));
+        return {
+            category: String(item.category || ''),
+            item: item.item,
+            label: String(item.label),
+            priceBlack: Math.max(0, Math.floor(Number(item.priceBlack) || 0)),
+            priceCash: Math.max(0, Math.floor(Number(item.priceCash) || 0)),
+            max,
+            defaultAmount,
+            image: item.image,
+        };
+    });
 }
 
 function openShop(data) {

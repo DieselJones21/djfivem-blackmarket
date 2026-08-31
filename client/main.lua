@@ -274,17 +274,11 @@ RegisterNUICallback('close', function(_, cb)
 end)
 
 RegisterNUICallback('checkout', function(data, cb)
-    local result = lib.callback.await('dj_blackmarket:checkout', false, data)
-    if result and result.ok then
-        lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
-    elseif result and result.error then
-        lib.notify({ title = 'Black Market', description = result.error, type = 'error' })
-    end
-    cb(result or { ok = false })
-end)
-
-RegisterNUICallback('purchase', function(data, cb)
-    local result = lib.callback.await('dj_blackmarket:purchase', false, data)
+    local result = lib.callback.await('dj_blackmarket:checkout', false, {
+        shop = data and data.shop,
+        method = data and data.method,
+        cart = data and data.cart,
+    })
     if result and result.ok then
         lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
     elseif result and result.error then
