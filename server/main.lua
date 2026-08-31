@@ -84,10 +84,17 @@ local function normalizeCart(shop, cart)
     local merged = {}
     local order = {}
 
+    if #cart > (Config.MaxCartLines or 8) then
+        return nil
+    end
+
     for i = 1, #cart do
         local line = cart[i]
         if type(line) == 'table' then
             local itemName = tostring(line.item or '')
+            if not itemName:match('^[%w_%-]+$') then
+                return nil
+            end
             local amount = math.floor(tonumber(line.amount) or 0)
             local entry = resolveEntry(shop, itemName)
             if not entry or amount < 1 then

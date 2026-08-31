@@ -253,6 +253,7 @@ function OpenBlackMarket(shop)
 
     nuiOpen = true
     SetNuiFocus(true, true)
+    SetNuiFocusKeepInput(false)
     SetCursorLocation(0.5, 0.5)
     SendNUIMessage({
         action = 'open',
@@ -371,6 +372,22 @@ CreateThread(function()
         end
 
         Wait(1000)
+    end
+end)
+
+CreateThread(function()
+    while true do
+        if nuiOpen then
+            DisableControlAction(0, 1, true)
+            DisableControlAction(0, 2, true)
+            DisableControlAction(0, 24, true)
+            DisableControlAction(0, 25, true)
+            DisableControlAction(0, 142, true)
+            DisableControlAction(0, 322, true)
+            Wait(0)
+        else
+            Wait(400)
+        end
     end
 end)
 
