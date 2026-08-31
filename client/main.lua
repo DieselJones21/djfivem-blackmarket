@@ -253,6 +253,7 @@ function OpenBlackMarket(shop)
 
     nuiOpen = true
     SetNuiFocus(true, true)
+    SetNuiFocusKeepInput(false)
     SetCursorLocation(0.5, 0.5)
     SendNUIMessage({
         action = 'open',
@@ -273,17 +274,11 @@ RegisterNUICallback('close', function(_, cb)
 end)
 
 RegisterNUICallback('checkout', function(data, cb)
-    local result = lib.callback.await('dj_blackmarket:checkout', false, data)
-    if result and result.ok then
-        lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
-    elseif result and result.error then
-        lib.notify({ title = 'Black Market', description = result.error, type = 'error' })
-    end
-    cb(result or { ok = false })
-end)
-
-RegisterNUICallback('purchase', function(data, cb)
-    local result = lib.callback.await('dj_blackmarket:purchase', false, data)
+    local result = lib.callback.await('dj_blackmarket:checkout', false, {
+        shop = data and data.shop,
+        method = data and data.method,
+        cart = data and data.cart,
+    })
     if result and result.ok then
         lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
     elseif result and result.error then
@@ -371,6 +366,22 @@ CreateThread(function()
         end
 
         Wait(1000)
+    end
+end)
+
+CreateThread(function()
+    while true do
+        if nuiOpen then
+            DisableControlAction(0, 1, true)
+            DisableControlAction(0, 2, true)
+            DisableControlAction(0, 24, true)
+            DisableControlAction(0, 25, true)
+            DisableControlAction(0, 142, true)
+            DisableControlAction(0, 322, true)
+            Wait(0)
+        else
+            Wait(400)
+        end
     end
 end)
 

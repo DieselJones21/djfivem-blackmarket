@@ -84,10 +84,17 @@ local function normalizeCart(shop, cart)
     local merged = {}
     local order = {}
 
+    if #cart > (Config.MaxCartLines or 8) then
+        return nil
+    end
+
     for i = 1, #cart do
         local line = cart[i]
         if type(line) == 'table' then
             local itemName = tostring(line.item or '')
+            if not itemName:match('^[%w_%-]+$') then
+                return nil
+            end
             local amount = math.floor(tonumber(line.amount) or 0)
             local entry = resolveEntry(shop, itemName)
             if not entry or amount < 1 then
@@ -183,86 +190,6 @@ lib.callback.register('dj_blackmarket:checkout', function(source, data)
         ok = true,
         message = shop == 'gps' and Config.Notify.gpsBought or Config.Notify.purchased,
         money = Bridge.GetMoney(source),
-    }
-end)
-
-lib.callback.register('dj_blackmarket:purchase', function(source, data)
-    if type(data) ~= 'table' then
-        return { ok = false, error = Config.Notify.invalid }
-    end
-
-    local shop = data.shop == 'gps' and 'gps' or 'dealer'
-    local itemName = tostring(data.item or '')
-    local method = data.method == 'cash' and 'cash' or 'black_money'
-    local amount = math.floor(tonumber(data.amount) or 1)
-
-    if isBlocked(source) then
-        return { ok = false, error = Config.Notify.blocked }
-    end
-
-    if not isNearShop(source, shop) then
-        return { ok = false, error = Config.Notify.tooFar }
-    end
-
-    local now = GetGameTimer()
-    if lastPurchase[source] and (now - lastPurchase[source]) < Config.PurchaseCooldown then
-        return { ok = false, error = Config.Notify.cooldown }
-    end
-
-    local entry
-
-    if shop == 'gps' then
-        if itemName ~= Config.GpsVendor.item then
-            return { ok = false, error = Config.Notify.invalid }
-        end
-
-        entry = {
-            item = Config.GpsVendor.item,
-            priceBlack = Config.GpsVendor.priceBlack,
-            priceCash = Config.GpsVendor.priceCash,
-            max = 5,
-        }
-    else
-        entry = itemsByName[itemName]
-        if not entry then
-            return { ok = false, error = Config.Notify.invalid }
-        end
-    end
-
-    if amount < 1 then amount = 1 end
-    if amount > (entry.max or 1) then
-        amount = entry.max or 1
-    end
-
-    local unitPrice = method == 'cash' and entry.priceCash or entry.priceBlack
-    local total = unitPrice * amount
-
-    if not Bridge.CanCarry(source, entry.item, amount) then
-        return { ok = false, error = Config.Notify.noItem }
-    end
-
-    if not Bridge.RemoveMoney(source, method, total) then
-        return { ok = false, error = Config.Notify.noMoney }
-    end
-
-    local metadata
-    if entry.item:find('WEAPON_', 1, true) == 1 then
-        metadata = { registered = false }
-    end
-
-    local added = Bridge.AddItem(source, entry.item, amount, metadata)
-    if not added then
-        Bridge.AddMoney(source, method, total)
-        return { ok = false, error = Config.Notify.noItem, money = Bridge.GetMoney(source) }
-    end
-
-    lastPurchase[source] = now
-
-    local money = Bridge.GetMoney(source)
-    return {
-        ok = true,
-        message = shop == 'gps' and Config.Notify.gpsBought or Config.Notify.purchased,
-        money = money,
     }
 end)
 

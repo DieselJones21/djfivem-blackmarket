@@ -23,7 +23,11 @@ local function detectFramework()
     return 'none'
 end
 
-CreateThread(function()
+local function ensureFramework()
+    if framework ~= 'none' and (framework ~= 'esx' or ESX) and (framework ~= 'qb' or QBCore) then
+        return
+    end
+
     framework = detectFramework()
 
     if framework == 'esx' then
@@ -31,6 +35,10 @@ CreateThread(function()
     elseif framework == 'qb' then
         QBCore = exports['qb-core']:GetCoreObject()
     end
+end
+
+CreateThread(function()
+    ensureFramework()
 end)
 
 local function getESXPlayer(src)
@@ -53,6 +61,7 @@ local function getQBPlayer(src)
 end
 
 function Bridge.GetName(src)
+    ensureFramework()
     if framework == 'esx' then
         local player = getESXPlayer(src)
         if player then
@@ -77,6 +86,7 @@ function Bridge.GetName(src)
 end
 
 function Bridge.GetJobName(src)
+    ensureFramework()
     if framework == 'esx' then
         local player = getESXPlayer(src)
         return player and player.job and player.job.name or 'unemployed'
@@ -100,6 +110,7 @@ local function getOxCount(src, itemName)
 end
 
 local function getAccountAmount(src, method)
+    ensureFramework()
     if framework == 'esx' then
         local player = getESXPlayer(src)
         if not player then return 0 end

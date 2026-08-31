@@ -6,9 +6,11 @@ Config.Framework = 'auto'
 Config.Shop = {
     name = 'Black Market',
     location = 'Mount Chiliad',
-    initials = 'BM',
+    initials = '305',
     customerRole = 'Customer',
 }
+
+Config.MaxCartLines = 8
 
 -- Shop icons are loaded from ox_inventory/web/images/<item>.png
 -- Copy the PNGs from install/inventory_images/ into that folder.
