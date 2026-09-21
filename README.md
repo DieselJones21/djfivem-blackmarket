@@ -1,6 +1,6 @@
 # djfivem-blackmarket
 
-Custom FiveM black market with a Mount Chiliad dealer, four shop categories, cash vs black money pricing, a usable GPS item, and inventory icons.
+The 305 Miami black market. Same Chiliad dealer, four shop categories, cash vs dirty-cash pricing, a usable GPS item, and inventory icons — now wearing the metallic pink 305 watermark.
 
 Dirty money is the cheap rate. Cash always costs more.
 

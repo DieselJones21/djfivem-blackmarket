@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Black Market</title>
+    <title>The 305</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,19 +13,23 @@
             <div class="tablet">
                 <span class="camera"></span>
                 <section class="screen">
+                    <div class="watermark" aria-hidden="true">
+                        <img src="images/watermark.png" alt="" />
+                    </div>
                     <header class="topbar">
                         <div class="brand">
-                            <img class="brand-logo" src="images/logo.png" alt="DJ FiveM Scripts" />
-                            <div>
+                            <img class="brand-logo" src="images/logo.png" alt="The 305" />
+                            <div class="brand-copy">
+                                <p class="brand-kicker">The 305 · Miami</p>
                                 <h1 id="shop-title">Black Market</h1>
-                                <p id="shop-location">Mount Chiliad</p>
+                                <p id="shop-location">Miami</p>
                             </div>
                         </div>
                         <nav id="categories" class="tabs"></nav>
                         <div class="profile">
                             <div class="profile-text">
                                 <strong id="player-name">Customer</strong>
-                                <span id="player-role">Customer</span>
+                                <span id="player-role">Connected</span>
                             </div>
                             <div id="player-avatar" class="avatar">C</div>
                         </div>
@@ -38,7 +42,7 @@
                         </article>
                         <article class="stat">
                             <strong id="money-black">$0</strong>
-                            <span>Black Money</span>
+                            <span>Dirty Cash</span>
                         </article>
                         <article class="stat">
                             <strong id="cart-total">$0</strong>
@@ -59,10 +63,10 @@
                                             <circle cx="11" cy="11" r="7" />
                                             <path d="M20 20l-3.2-3.2" />
                                         </svg>
-                                        <input id="search" type="text" placeholder="Search items" autocomplete="off" spellcheck="false" />
+                                        <input id="search" type="text" placeholder="Search the 305" autocomplete="off" spellcheck="false" />
                                     </label>
                                     <div class="pay-toggle" role="tablist">
-                                        <button type="button" id="pay-black" class="active" data-method="black_money">Black Money</button>
+                                        <button type="button" id="pay-black" class="active" data-method="black_money">Dirty Cash</button>
                                         <button type="button" id="pay-cash" data-method="cash">Cash</button>
                                     </div>
                                 </div>
@@ -73,7 +77,7 @@
                         <aside class="cart">
                             <div class="cart-head">
                                 <h2>Cart</h2>
-                                <p>Review and checkout</p>
+                                <p>Review and close the deal</p>
                             </div>
                             <div id="cart-list" class="cart-list">
                                 <p class="empty">Your cart is empty.</p>
@@ -81,20 +85,20 @@
                             <div class="cart-foot">
                                 <div class="row">
                                     <span>Method</span>
-                                    <strong id="method-label">Black Money</strong>
+                                    <strong id="method-label">Dirty Cash</strong>
                                 </div>
                                 <div class="row">
                                     <span>Total</span>
                                     <strong id="method-total">$0</strong>
                                 </div>
-                                <button type="button" id="btn-checkout" class="checkout" disabled>Checkout</button>
+                                <button type="button" id="btn-checkout" class="checkout" disabled>Close Deal</button>
                             </div>
                         </aside>
                     </div>
                 </section>
                 <span class="home-bar"></span>
             </div>
-            <button type="button" id="btn-close" class="esc">ESC (Close Shop)</button>
+            <button type="button" id="btn-close" class="esc">ESC · Leave the 305</button>
             </div>
         </div>
         <div id="toast" class="toast hidden"></div>

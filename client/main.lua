@@ -181,9 +181,9 @@ local function shopPayload(shop)
         return {
             shop = 'gps',
             title = 'Street Contact',
-            subtitle = 'Los Santos',
-            initials = 'BM',
-            location = 'Los Santos',
+            subtitle = 'Miami',
+            initials = '305',
+            location = 'Miami',
             categories = {
                 { id = 'gps', label = 'Locator' },
             },
@@ -191,8 +191,8 @@ local function shopPayload(shop)
                 {
                     category = 'gps',
                     item = Config.GpsVendor.item,
-                    label = 'Black Market GPS',
-                    description = 'Marks the mountain dealer. Don\'t flash it around cops.',
+                    label = '305 GPS',
+                    description = 'Marks the 305 dealer. Don\'t flash it around cops.',
                     priceBlack = Config.GpsVendor.priceBlack,
                     priceCash = Config.GpsVendor.priceCash,
                     max = 5,
@@ -222,9 +222,9 @@ local function shopPayload(shop)
     return {
         shop = 'dealer',
         title = Config.Shop.name or 'Black Market',
-        subtitle = Config.Shop.location or 'Mount Chiliad',
-        initials = Config.Shop.initials or 'BM',
-        location = Config.Shop.location or 'Mount Chiliad',
+        subtitle = Config.Shop.location or 'Miami',
+        initials = Config.Shop.initials or '305',
+        location = Config.Shop.location or 'Miami',
         categories = Config.Categories,
         items = items,
     }
@@ -237,9 +237,9 @@ function OpenBlackMarket(shop)
     if not result or not result.ok then
         local reason = result and result.reason
         if reason == 'blocked' then
-            lib.notify({ title = 'Black Market', description = Config.Notify.blocked, type = 'error' })
+            lib.notify({ title = 'The 305', description = Config.Notify.blocked, type = 'error' })
         else
-            lib.notify({ title = 'Black Market', description = Config.Notify.tooFar, type = 'error' })
+            lib.notify({ title = 'The 305', description = Config.Notify.tooFar, type = 'error' })
         end
         return
     end
@@ -275,9 +275,9 @@ end)
 RegisterNUICallback('checkout', function(data, cb)
     local result = lib.callback.await('dj_blackmarket:checkout', false, data)
     if result and result.ok then
-        lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
+        lib.notify({ title = 'The 305', description = result.message or Config.Notify.purchased, type = 'success' })
     elseif result and result.error then
-        lib.notify({ title = 'Black Market', description = result.error, type = 'error' })
+        lib.notify({ title = 'The 305', description = result.error, type = 'error' })
     end
     cb(result or { ok = false })
 end)
@@ -285,9 +285,9 @@ end)
 RegisterNUICallback('purchase', function(data, cb)
     local result = lib.callback.await('dj_blackmarket:purchase', false, data)
     if result and result.ok then
-        lib.notify({ title = 'Black Market', description = result.message or Config.Notify.purchased, type = 'success' })
+        lib.notify({ title = 'The 305', description = result.message or Config.Notify.purchased, type = 'success' })
     elseif result and result.error then
-        lib.notify({ title = 'Black Market', description = result.error, type = 'error' })
+        lib.notify({ title = 'The 305', description = result.error, type = 'error' })
     end
     cb(result or { ok = false })
 end)

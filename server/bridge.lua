@@ -236,7 +236,7 @@ end
 
 function Bridge.Notify(src, description, nType)
     TriggerClientEvent('ox_lib:notify', src, {
-        title = 'Black Market',
+        title = 'The 305',
         description = description,
         type = nType or 'inform',
     })

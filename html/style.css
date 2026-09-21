@@ -1,15 +1,38 @@
+@font-face {
+    font-family: "Outfit";
+    src: url("fonts/Outfit.ttf") format("truetype");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Bebas Neue";
+    src: url("fonts/BebasNeue-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
-    --bezel: #1b1b1d;
-    --bezel-2: #2a2a2e;
-    --screen: #111111;
-    --card: #1c1c1e;
-    --card-2: #252528;
-    --text: #f5f5f7;
-    --muted: #8e8e93;
-    --red: #ff3b30;
-    --red-press: #e0342b;
-    --pill: #2c2c2e;
-    --shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    --night: #07030b;
+    --screen: #0b0610;
+    --bezel: #141016;
+    --bezel-2: #2a1c24;
+    --card: rgba(24, 12, 22, 0.62);
+    --card-2: rgba(36, 16, 30, 0.78);
+    --glass: rgba(255, 255, 255, 0.04);
+    --text: #f7f3f6;
+    --muted: #b59aaa;
+    --pink: #ff2d8b;
+    --pink-2: #ff63b0;
+    --pink-deep: #c2186a;
+    --chrome: #e8eef4;
+    --chrome-2: #9aa6b4;
+    --pill: rgba(255, 255, 255, 0.06);
+    --line: rgba(255, 45, 139, 0.18);
+    --shadow: 0 28px 90px rgba(0, 0, 0, 0.62);
+    --pink-glow: 0 10px 28px rgba(255, 45, 139, 0.28);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,9 +43,16 @@ html, body {
     overflow: hidden;
     background: transparent;
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    font-family: "Outfit", "SF Pro Display", "Segoe UI", sans-serif;
     -webkit-font-smoothing: antialiased;
     user-select: none;
+}
+
+body.preview {
+    background:
+        radial-gradient(900px 520px at 50% 18%, rgba(255, 45, 139, 0.16), transparent 58%),
+        radial-gradient(700px 420px at 80% 90%, rgba(80, 20, 70, 0.35), transparent 60%),
+        #12060f;
 }
 
 button, input { font-family: inherit; }
@@ -40,7 +70,9 @@ button, input { font-family: inherit; }
     height: 100%;
     display: grid;
     place-items: center;
-    background: radial-gradient(900px 500px at 50% 45%, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.55));
+    background:
+        radial-gradient(720px 380px at 50% 42%, rgba(255, 45, 139, 0.12), transparent 58%),
+        radial-gradient(980px 560px at 50% 50%, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.62));
 }
 
 .tablet-wrap {
@@ -55,10 +87,12 @@ button, input { font-family: inherit; }
     padding: 18px 16px 22px;
     border-radius: 42px;
     background:
-        linear-gradient(180deg, #3a3a3e 0%, var(--bezel-2) 8%, var(--bezel) 100%);
+        linear-gradient(180deg, #4a3340 0%, var(--bezel-2) 10%, var(--bezel) 100%);
     box-shadow:
         var(--shadow),
-        inset 0 1px 0 rgba(255, 255, 255, 0.16),
+        0 0 0 1px rgba(255, 45, 139, 0.22),
+        0 0 40px rgba(255, 45, 139, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
         inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
@@ -70,7 +104,10 @@ button, input { font-family: inherit; }
     height: 8px;
     border-radius: 50%;
     background: #0b0b0c;
-    box-shadow: inset 0 0 0 2px #2f2f33, 0 0 0 1px #111;
+    box-shadow:
+        inset 0 0 0 2px #3a2a32,
+        0 0 0 1px #111,
+        0 0 10px 2px rgba(255, 45, 139, 0.55);
     transform: translateX(-50%);
 }
 
@@ -81,11 +118,12 @@ button, input { font-family: inherit; }
     width: 128px;
     height: 5px;
     border-radius: 99px;
-    background: #4a4a4e;
+    background: linear-gradient(90deg, #6a4a58, #d7c3cc, #6a4a58);
     transform: translateX(-50%);
 }
 
 .screen {
+    position: relative;
     width: 100%;
     height: 100%;
     display: grid;
@@ -93,15 +131,56 @@ button, input { font-family: inherit; }
     gap: 16px;
     padding: 22px 22px 16px;
     border-radius: 28px;
-    background: var(--screen);
+    background:
+        radial-gradient(700px 360px at 50% -10%, rgba(255, 45, 139, 0.16), transparent 55%),
+        linear-gradient(180deg, #140912 0%, var(--screen) 38%, #09040c 100%);
     overflow: hidden;
+}
+
+.screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: radial-gradient(circle at 50% 30%, #000 30%, transparent 78%);
+    opacity: 0.45;
+}
+
+.watermark {
+    position: absolute;
+    inset: 18% 6% 8%;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.32;
+    filter: drop-shadow(0 0 34px rgba(255, 45, 139, 0.42));
+}
+
+.watermark img {
+    width: min(720px, 74%);
+    height: auto;
+    object-fit: contain;
+}
+
+.topbar,
+.stats,
+.workspace {
+    position: relative;
+    z-index: 1;
 }
 
 .topbar {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1.35fr auto 0.9fr;
     align-items: center;
     gap: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
 }
 
 .brand {
@@ -112,18 +191,34 @@ button, input { font-family: inherit; }
 }
 
 .brand-logo {
-    height: 56px;
+    height: 112px;
     width: auto;
-    max-width: 150px;
+    max-width: 188px;
     display: block;
     object-fit: contain;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+    filter:
+        drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5))
+        drop-shadow(0 0 18px rgba(255, 45, 139, 0.45));
+}
+
+.brand-copy { min-width: 0; }
+
+.brand-kicker {
+    color: var(--pink-2);
+    font-family: "Bebas Neue", "Outfit", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
 }
 
 .brand h1 {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.1;
+    font-family: "Bebas Neue", "Outfit", sans-serif;
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+    color: #fff;
 }
 
 .brand p,
@@ -139,7 +234,8 @@ button, input { font-family: inherit; }
     gap: 6px;
     padding: 4px;
     border-radius: 999px;
-    background: var(--card);
+    background: rgba(12, 6, 12, 0.72);
+    border: 1px solid rgba(255, 45, 139, 0.16);
     max-width: 100%;
     overflow-x: auto;
 }
@@ -151,13 +247,16 @@ button, input { font-family: inherit; }
     padding: 8px 16px;
     border-radius: 999px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
 }
 
 .tab.active {
-    background: #e8e8ed;
-    color: #111;
+    background: linear-gradient(180deg, var(--pink-2), var(--pink) 58%, var(--pink-deep));
+    color: #fff;
+    box-shadow: var(--pink-glow), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .profile {
@@ -167,9 +266,7 @@ button, input { font-family: inherit; }
     gap: 10px;
 }
 
-.profile-text {
-    text-align: right;
-}
+.profile-text { text-align: right; }
 
 .profile strong { display: block; font-size: 14px; }
 
@@ -177,10 +274,11 @@ button, input { font-family: inherit; }
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--red);
+    background: linear-gradient(180deg, var(--pink-2), var(--pink-deep));
     display: grid;
     place-items: center;
     font-weight: 800;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12), var(--pink-glow);
 }
 
 .stats {
@@ -191,8 +289,11 @@ button, input { font-family: inherit; }
 
 .stat {
     background: var(--card);
+    border: 1px solid var(--line);
     border-radius: 18px;
     padding: 16px 18px 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
 }
 
 .stat strong {
@@ -200,12 +301,18 @@ button, input { font-family: inherit; }
     font-size: 30px;
     letter-spacing: -0.03em;
     margin-bottom: 10px;
+    background: linear-gradient(180deg, #fff, #ffd6ea 40%, var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .stat span {
-    color: var(--red);
-    font-size: 13px;
+    color: var(--pink-2);
+    font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
 }
 
 .workspace {
@@ -218,10 +325,13 @@ button, input { font-family: inherit; }
 .catalog,
 .cart {
     background: var(--card);
+    border: 1px solid var(--line);
     border-radius: 20px;
     min-height: 0;
     display: flex;
     flex-direction: column;
+    backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .catalog { padding: 16px 16px 12px; }
@@ -238,7 +348,9 @@ button, input { font-family: inherit; }
 
 .catalog-head h2,
 .cart-head h2 {
-    font-size: 22px;
+    font-family: "Bebas Neue", "Outfit", sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.08em;
 }
 
 .catalog-tools {
@@ -258,6 +370,7 @@ button, input { font-family: inherit; }
     padding: 0 12px;
     border-radius: 999px;
     background: var(--pill);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .search svg {
@@ -278,11 +391,14 @@ button, input { font-family: inherit; }
     font-size: 13px;
 }
 
+.search input::placeholder { color: #8a7380; }
+
 .pay-toggle {
     display: flex;
     padding: 4px;
     border-radius: 999px;
     background: var(--pill);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .pay-toggle button {
@@ -298,8 +414,9 @@ button, input { font-family: inherit; }
 }
 
 .pay-toggle button.active {
-    background: #fff;
-    color: #111;
+    background: linear-gradient(180deg, var(--chrome), #c9d2dc);
+    color: #1a1016;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .grid {
@@ -313,6 +430,7 @@ button, input { font-family: inherit; }
 
 .card {
     background: var(--card-2);
+    border: 1px solid rgba(255, 45, 139, 0.12);
     border-radius: 16px;
     padding: 12px;
     display: flex;
@@ -323,7 +441,9 @@ button, input { font-family: inherit; }
 .card .thumb {
     height: 128px;
     border-radius: 12px;
-    background: #111;
+    background:
+        radial-gradient(120px 70px at 50% 80%, rgba(255, 45, 139, 0.16), transparent 70%),
+        #10070e;
     display: grid;
     place-items: center;
     overflow: hidden;
@@ -341,9 +461,12 @@ button, input { font-family: inherit; }
 }
 
 .card .price {
-    color: var(--red);
     font-size: 18px;
     font-weight: 800;
+    background: linear-gradient(180deg, #ffb3d8, var(--pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .stepper {
@@ -352,7 +475,8 @@ button, input { font-family: inherit; }
     height: 36px;
     border-radius: 10px;
     overflow: hidden;
-    background: #1a1a1c;
+    background: #160910;
+    border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .stepper button,
@@ -367,18 +491,30 @@ button, input { font-family: inherit; }
 .stepper button { cursor: pointer; font-size: 18px; }
 .stepper button:disabled { opacity: 0.35; cursor: default; }
 
-.add {
-    height: 40px;
+.add,
+.checkout {
     border: 0;
-    border-radius: 10px;
-    background: var(--red);
     color: #fff;
     font-weight: 800;
     cursor: pointer;
+    background: linear-gradient(180deg, #ff6eb4 0%, var(--pink) 52%, var(--pink-deep) 100%);
+    box-shadow: var(--pink-glow), inset 0 1px 0 rgba(255, 255, 255, 0.32);
 }
 
-.add:hover { background: var(--red-press); }
-.add.added { background: #34c759; }
+.add {
+    height: 40px;
+    border-radius: 10px;
+}
+
+.add:hover,
+.checkout:hover:not(:disabled) {
+    filter: brightness(1.06);
+}
+
+.add.added {
+    background: linear-gradient(180deg, #5de08a, #2f9e55);
+    box-shadow: 0 8px 18px rgba(47, 158, 85, 0.28);
+}
 
 .cart-list {
     flex: 1;
@@ -401,33 +537,31 @@ button, input { font-family: inherit; }
     gap: 10px;
     align-items: center;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 45, 139, 0.1);
 }
 
 .line img {
     width: 48px;
     height: 48px;
     object-fit: contain;
-    background: #111;
+    background: #10070e;
     border-radius: 10px;
 }
 
 .line h4 { font-size: 13px; }
 .line p { color: var(--muted); font-size: 12px; }
-.line strong { font-size: 13px; }
+.line strong { font-size: 13px; color: var(--pink-2); }
 .line button {
     margin-top: 4px;
     border: 0;
     background: transparent;
-    color: var(--red);
+    color: var(--pink);
     cursor: pointer;
     font-size: 12px;
     font-weight: 700;
 }
 
-.cart-foot {
-    padding-top: 12px;
-}
+.cart-foot { padding-top: 12px; }
 
 .row {
     display: flex;
@@ -443,18 +577,17 @@ button, input { font-family: inherit; }
     width: 100%;
     height: 46px;
     margin-top: 8px;
-    border: 0;
     border-radius: 12px;
-    background: var(--red);
-    color: #fff;
     font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .checkout:disabled {
     opacity: 0.4;
     cursor: default;
+    filter: none;
+    box-shadow: none;
 }
 
 .esc {
@@ -466,8 +599,9 @@ button, input { font-family: inherit; }
     padding: 0 14px;
     border: 0;
     border-radius: 999px;
-    background: rgba(28, 28, 30, 0.94);
+    background: rgba(20, 10, 16, 0.94);
     color: var(--text);
+    border: 1px solid rgba(255, 45, 139, 0.28);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     cursor: pointer;
     font-size: 12px;
@@ -479,21 +613,24 @@ button, input { font-family: inherit; }
     left: 50%;
     top: 28px;
     transform: translateX(-50%);
-    background: rgba(28, 28, 30, 0.96);
+    background: rgba(20, 10, 16, 0.96);
     color: var(--text);
     padding: 10px 16px;
     border-radius: 999px;
+    border: 1px solid rgba(255, 45, 139, 0.3);
     font-size: 13px;
     font-weight: 600;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 0 18px rgba(255, 45, 139, 0.2);
     z-index: 5;
 }
 
 .grid::-webkit-scrollbar,
-.cart-list::-webkit-scrollbar { width: 8px; }
+.cart-list::-webkit-scrollbar,
+.tabs::-webkit-scrollbar { width: 8px; height: 6px; }
 .grid::-webkit-scrollbar-thumb,
-.cart-list::-webkit-scrollbar-thumb {
-    background: #3a3a3c;
+.cart-list::-webkit-scrollbar-thumb,
+.tabs::-webkit-scrollbar-thumb {
+    background: rgba(255, 45, 139, 0.35);
     border-radius: 99px;
 }
 
@@ -502,4 +639,5 @@ button, input { font-family: inherit; }
     .cart { min-height: 220px; }
     .topbar { grid-template-columns: 1fr; }
     .profile { justify-content: flex-start; }
+    .brand-logo { height: 84px; }
 }
