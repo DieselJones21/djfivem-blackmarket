@@ -4,7 +4,7 @@ lua54 'yes'
 
 name 'djfivem-blackmarket'
 author 'DieselJones21'
-description 'Custom black market dealer with pistols, ARs, ammo, BM items, and a GPS locator'
+description 'The 305 Miami black market dealer with pistols, ARs, ammo, street kit, and a GPS locator'
 version '1.0.0'
 
 shared_scripts {
@@ -28,6 +28,7 @@ files {
     'html/style.css',
     'html/app.js',
     'html/images/*.png',
+    'html/fonts/*',
 }
 
 dependencies {

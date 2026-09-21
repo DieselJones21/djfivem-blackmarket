@@ -3,9 +3,9 @@ const inGame = Boolean(window.invokeNative);
 const demoCatalog = {
     shop: 'dealer',
     title: 'Black Market',
-    location: 'Mount Chiliad',
-    initials: 'BM',
-    player: { name: 'Test Test', role: 'Customer' },
+    location: 'Miami',
+    initials: '305',
+    player: { name: 'Test Test', role: 'Connected' },
     money: { cash: 250000, black_money: 180000 },
     categories: [
         { id: 'pistols', label: 'Pistols' },
@@ -30,7 +30,7 @@ const demoCatalog = {
         { category: 'bm', item: 'robbery_tablet', label: 'Robbery Tablet', description: 'Encrypted tablet used to run jobs.', priceBlack: 12500, priceCash: 19000, max: 5, defaultAmount: 1, image: 'images/robbery_tablet.png' },
         { category: 'bm', item: 'lockpick', label: 'Lockpick', description: 'Slim-jim set.', priceBlack: 350, priceCash: 525, max: 10, defaultAmount: 1, image: 'images/lockpick.png' },
         { category: 'bm', item: 'veh_pinkslip', label: 'Vehicle Pink Slip', description: 'Paper for moving a vehicle off the books.', priceBlack: 35000, priceCash: 52500, max: 3, defaultAmount: 1, image: 'images/veh_pinkslip.png' },
-        { category: 'bm', item: 'blackmarket_gps', label: 'Black Market GPS', description: 'Marks the mountain dealer on your map.', priceBlack: 4000, priceCash: 6500, max: 5, defaultAmount: 1, image: 'images/blackmarket_gps.png' },
+        { category: 'bm', item: 'blackmarket_gps', label: '305 GPS', description: 'Marks the 305 dealer on your map.', priceBlack: 4000, priceCash: 6500, max: 5, defaultAmount: 1, image: 'images/blackmarket_gps.png' },
     ],
 };
 
@@ -240,7 +240,7 @@ function renderCart() {
 function renderTotals() {
     const total = cartTotal();
     const count = cartCount();
-    const label = state.method === 'cash' ? 'Cash' : 'Black Money';
+    const label = state.method === 'cash' ? 'Cash' : 'Dirty Cash';
     const wallet = state.method === 'cash' ? state.money.cash : state.money.black_money;
     $('cart-total').textContent = money(total);
     $('cart-count').textContent = count + (count === 1 ? ' item' : ' items');
@@ -262,7 +262,7 @@ async function checkout() {
     const total = cartTotal();
     const wallet = state.method === 'cash' ? state.money.cash : state.money.black_money;
     if (wallet < total) {
-        toast('Not enough ' + (state.method === 'cash' ? 'cash' : 'black money'));
+        toast('Not enough ' + (state.method === 'cash' ? 'cash' : 'dirty cash'));
         return;
     }
 
@@ -305,11 +305,11 @@ function openShop(data) {
     state.buying = false;
 
     $('shop-title').textContent = data.title || 'Black Market';
-    $('shop-location').textContent = data.location || data.subtitle || 'Mount Chiliad';
+    $('shop-location').textContent = data.location || data.subtitle || 'Miami';
 
-    const player = data.player || { name: 'Customer', role: 'Customer' };
+    const player = data.player || { name: 'Customer', role: 'Connected' };
     $('player-name').textContent = player.name || 'Customer';
-    $('player-role').textContent = player.role || 'Customer';
+    $('player-role').textContent = player.role || 'Connected';
     $('player-avatar').textContent = initials(player.name);
 
     $('search').value = '';
@@ -343,5 +343,6 @@ window.addEventListener('message', (event) => {
 });
 
 if (!inGame) {
+    document.body.classList.add('preview');
     openShop(demoCatalog);
 }

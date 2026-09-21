@@ -5,9 +5,9 @@ Config.Framework = 'auto'
 
 Config.Shop = {
     name = 'Black Market',
-    location = 'Mount Chiliad',
-    initials = 'BM',
-    customerRole = 'Customer',
+    location = 'Miami',
+    initials = '305',
+    customerRole = 'Connected',
 }
 
 -- Shop icons are loaded from ox_inventory/web/images/<item>.png
@@ -25,7 +25,7 @@ Config.Dealer = {
     coords = vec4(501.85, 5604.96, 797.91, 171.09),
     scenario = 'WORLD_HUMAN_SMOKING',
     interactId = 'dj_blackmarket_dealer',
-    interactLabel = 'Open Black Market',
+    interactLabel = 'Open The 305',
     spawnDistance = 80.0,
 }
 
@@ -36,7 +36,7 @@ Config.GpsVendor = {
     coords = vec4(127.92, -1929.90, 20.38, 231.0),
     scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
     interactId = 'dj_blackmarket_gps_vendor',
-    interactLabel = 'Buy Black Market GPS',
+    interactLabel = 'Buy 305 GPS',
     spawnDistance = 60.0,
     item = 'blackmarket_gps',
     priceBlack = 4000,
@@ -46,14 +46,14 @@ Config.GpsVendor = {
 Config.Gps = {
     item = 'blackmarket_gps',
     consumeOnUse = false,
-    notifyTitle = 'Black Market GPS',
-    notifyDesc = 'Signal locked. Head to the peak of Mount Chiliad.',
+    notifyTitle = 'The 305 GPS',
+    notifyDesc = 'Signal locked. Head to the 305 drop.',
     blip = {
         enabled = true,
         sprite = 161,
-        color = 1,
+        color = 8,
         scale = 0.9,
-        label = 'Black Market',
+        label = 'The 305',
         duration = 120000, -- ms, 0 = waypoint only
     },
 }
@@ -250,8 +250,8 @@ Config.Items = {
     {
         category = 'bm',
         item = 'blackmarket_gps',
-        label = 'Black Market GPS',
-        description = 'Marks the mountain dealer on your map. Keep it close.',
+        label = '305 GPS',
+        description = 'Marks the 305 dealer on your map. Keep it close.',
         priceBlack = 4000,
         priceCash = 6500,
         max = 5,
@@ -259,12 +259,12 @@ Config.Items = {
 }
 
 Config.Notify = {
-    blocked = 'I don\'t sell to your kind. Walk.',
+    blocked = 'Wrong city for you. Walk.',
     tooFar = 'You wandered off. Deal\'s dead.',
     cooldown = 'Slow down.',
     invalid = 'That item isn\'t on the list.',
     noMoney = 'You\'re short.',
     noItem = 'Couldn\'t stash that. Check your pockets.',
-    purchased = 'We never met.',
+    purchased = 'Welcome to the 305. We never met.',
     gpsBought = 'Coordinates loaded. Don\'t lose that unit.',
 }

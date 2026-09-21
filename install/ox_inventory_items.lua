@@ -74,12 +74,12 @@
 
 --[[
 ['blackmarket_gps'] = {
-    label = 'Black Market GPS',
+    label = '305 GPS',
     weight = 200,
     stack = true,
     close = true,
     consume = 0,
-    description = 'Marks the mountain black market on your GPS.',
+    description = 'Marks the 305 black market on your GPS.',
     client = {
         event = 'dj_blackmarket:useGps',
     },
